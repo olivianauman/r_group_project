@@ -1,25 +1,13 @@
-﻿Name,Date,Day of the Week
-New Year's Day,2017-01-01,Sunday
-Valentine's Day,2017-02-14,Tuesday
-Presidents' Day,2017-02-20,Monday
-St. Patrick's Day,2017-03-17,Friday
-Easter,2017-04-16,Sunday
-Cinco de Mayo,2017-05-05,Friday
-Mother's Day,2017-05-14,Sunday
-Father's Day,2017-06-18,Sunday
-Independence Day,2017-07-04,Tuesday
-Halloween,2017-10-31,Tuesday
-Thanksgiving,2017-11-23,Thursday
-Christmas,2017-12-25,Monday
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
-,,
+Name	Date	Day of the Week
+New Year's Day	2017-01-01	Sunday
+Valentine's Day	2017-02-14	Tuesday
+Presidents' Day	2017-02-20	Monday
+St. Patrick's Day	2017-03-17	Friday
+Easter	2017-04-16	Sunday
+Cinco de Mayo	2017-05-05	Friday
+Mother's Day	2017-05-14	Sunday
+Father's Day	2017-06-18	Sunday
+Independence Day	2017-07-04	Tuesday
+Halloween	2017-10-31	Tuesday
+Thanksgiving	2017-11-23	Thursday
+Christmas	2017-12-25	Monday
