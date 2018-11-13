@@ -98,6 +98,8 @@ summ_Item <- arrange(summ_Item, desc(Sum_Volume_Sold_Liters))
 
 df_sales <- ungroup(df_sales)
 
+df_sales$County <- tolower(df_sales$County)
+
 df_sales <- group_by(df_sales, County)
 summ_County <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
 summ_County <- arrange(summ_County, desc(Sum_Volume_Sold_Liters))
@@ -111,8 +113,10 @@ df_sales <- group_by(df_sales, City)
 summ_City <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
 summ_City <- arrange(summ_City, desc(Sum_Volume_Sold_Liters))
 
+df_sales <- ungroup(df_sales)
+
 ################
-# Graph of sales by highest volume over time (to get a quick visual of spikes)
+# Graph of sales by highest volume over time
 ################
 
 library(ggplot2)
@@ -123,3 +127,18 @@ plot <- plot + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 
 ggsave(filename = "plot_dates.png", plot = plot, width = 24, height = 4, dpi = 600)
 
+
+################
+# Per capita liquor volume
+################
+df_census <- group_by(df_census, County)
+county_pop <- summarize(df_census, Sum_County_Pop = sum(Estimate))
+df_census <- ungroup(df_census)
+
+county_pop$County <- tolower(county_pop$County)
+summ_County$County <- tolower(summ_County$County)
+
+test_merge <- merge(summ_County, county_pop, all.x = TRUE)
+test_merge$Vol_Per_Capita <- round(test_merge$Sum_Volume_Sold_Liters / test_merge$Sum_County_Pop, 1)
+
+test_merge <- arrange(test_merge, desc(Vol_Per_Capita))
