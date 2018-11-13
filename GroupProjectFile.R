@@ -110,3 +110,16 @@ df_sales <- ungroup(df_sales)
 df_sales <- group_by(df_sales, City)
 summ_City <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
 summ_City <- arrange(summ_City, desc(Sum_Volume_Sold_Liters))
+
+################
+# Graph of sales by highest volume over time (to get a quick visual of spikes)
+################
+
+library(ggplot2)
+library(scales)
+
+plot <- qplot(Date, Volume.Sold..Liters., data = df_sales, geom = "line")
+plot <- plot + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
+
+ggsave(filename = "plot_dates.png", plot = plot, width = 24, height = 4, dpi = 600)
+
