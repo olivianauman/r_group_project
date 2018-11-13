@@ -69,6 +69,44 @@ identical(tolower(pop_est_2017$City), tolower(unique_city_county_combos$City))
 
 df_census <- subset(df_census, Year == "July 01 2017")
 
-# DELETE - unnecessary DFs
-pop_est_2017 <- NULL
-unique_city_county_combos <- NULL
+################
+# Question: What types and brands of alcohol are purchased in the highest quantity (by volume)?
+################
+
+suppressPackageStartupMessages(library(dplyr))
+library(reshape2)
+
+df_sales <- group_by(df_sales, Category.Name)
+summ_Category <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))                  
+summ_Category <- arrange(summ_Category, desc(Sum_Volume_Sold_Liters))
+
+df_sales <- ungroup(df_sales)
+
+df_sales <- group_by(df_sales, Vendor.Name)
+summ_Vendor <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
+summ_Vendor <- arrange(summ_Vendor, desc(Sum_Volume_Sold_Liters))
+
+df_sales <- ungroup(df_sales)
+
+df_sales <- group_by(df_sales, Item.Description)
+summ_Item <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
+summ_Item <- arrange(summ_Item, desc(Sum_Volume_Sold_Liters))
+
+################
+# Question: Which counties buy highest quantity (by volume)?
+################
+
+df_sales <- ungroup(df_sales)
+
+df_sales <- group_by(df_sales, County)
+summ_County <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
+summ_County <- arrange(summ_County, desc(Sum_Volume_Sold_Liters))
+
+################
+# Question: Which cities buy highest quantity (by volume)?
+################
+df_sales <- ungroup(df_sales)
+
+df_sales <- group_by(df_sales, City)
+summ_City <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
+summ_City <- arrange(summ_City, desc(Sum_Volume_Sold_Liters))
