@@ -146,6 +146,9 @@ test_merge <- arrange(test_merge, desc(Vol_Per_Capita))
 ################
 # Volume Sold by Week
 ################
+
+#Note: these are binned by week (Monday - Sunday). To unbin, remove the cut line & change group by to "Date" (instead of "date_binned").
+
 df_sales <- ungroup(df_sales)
 
 df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
