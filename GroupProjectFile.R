@@ -85,29 +85,32 @@ df_census$rural_or_urban[option_rural] <- "Rural"
 #                           ANALYSIS
 ##############################################################################
 
+
+# THE analyze_by FUNCTION ACCEPTS A DATAFRAME FOR THE FIRST ARG, df
+# THE analyze_by FUNCTION ACCEPTS A QUOTED COLUMN NAME FOR THE SECOND ARG, col_name
+# THE analyze_by FUNCTION RETURNS A DATAFRAME THAT GROUPS BY col_name AND SUMS THE VOLUME OF LIQUOR SOLD
+# Example: 
+# g <- analyze_by(df, quo(Date))
+analyze_by <- function(df, col_name) {
+  summ <- df %>%
+    select(!! col_name, Volume.Sold..Liters.) %>%
+    group_by(!! col_name) %>%
+    summarize(VolSold = sum(Volume.Sold..Liters.)) %>%
+    arrange(desc(VolSold))
+  summ
+}
+
 # WHAT CATEGORIES OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
-df_sales <- group_by(df_sales, Category.Name)
-summ_Category <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))                  
-summ_Category <- arrange(summ_Category, desc(Sum_Volume_Sold_Liters))
-df_sales <- ungroup(df_sales)
+categories <- analyze_by(df_sales, quo(Category.Name))
 
 # WHAT BRANDS (VENDOR) OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
-df_sales <- group_by(df_sales, Vendor.Name)
-summ_Vendor <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
-summ_Vendor <- arrange(summ_Vendor, desc(Sum_Volume_Sold_Liters))
-df_sales <- ungroup(df_sales)
+vendors <- analyze_by(df_sales, quo(Vendor.Name))
 
 # WHAT DESCRIPTIONS OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
-df_sales <- group_by(df_sales, Item.Description)
-summ_Item <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
-summ_Item <- arrange(summ_Item, desc(Sum_Volume_Sold_Liters))
-df_sales <- ungroup(df_sales)
+descriptions <- analyze_by(df_sales, quo(Item.Description))
 
-# WHICH COUNTIES BUY THE MOST ALCOHOL (BY VOLUME IN LITERS)?
-df_sales <- group_by(df_sales, City)
-summ_City <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
-summ_City <- arrange(summ_City, desc(Sum_Volume_Sold_Liters))
-df_sales <- ungroup(df_sales)
+# WHICH CITIES BUY THE MOST ALCOHOL (BY VOLUME IN LITERS)?
+cities <- analyze_by(df_sales, quo(City))
 
 # WHICH COUNTIES BUY THE MOST ALCOHOL (BY VOLUME LITERS/PER CAPITA)?
 df_census <- group_by(df_census, County)
