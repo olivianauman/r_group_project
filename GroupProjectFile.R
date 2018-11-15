@@ -47,15 +47,30 @@ df_sales <- read.csv("Iowa_Liquor_Sales_2017.csv", na.strings = c("NA", ""))
 df_census <- read.csv("County_Population_in_Iowa_by_Year.csv")
 
 # CLEANSE LIQUOR SALES DF
+df_sales$County <- tolower(df_sales$County)
 df_sales$Invoice.Item.Number <- as.character(df_sales$Invoice.Item.Number)
 df_sales$Date <- as.Date(df_sales$Date)
 df_sales$Zip.Code <- factor(df_sales$Zip.Code)
 df_sales$Store.Number <- factor(df_sales$Store.Number)
 df_sales$County.Number <- factor(df_sales$County.Number)
+df_sales$County <- factor(df_sales$County)
 df_sales$Category <- factor(df_sales$Category)
 df_sales$Vendor.Number <- factor(df_sales$Vendor.Number)
   #Kept this...sometimes Item.Description is the same but Item.Number is different for two data points
 df_sales$Item.Number <- factor(df_sales$Item.Number)
+  #Add levels
+levels(df_sales$County) <- c(levels(df_sales$County), "buena vista", "cerro gordo", "o'brien", "pottawattamie")
+  #Overwrite levels with accurate names
+df_sales$County[11] <- "buena vista"
+df_sales$County[17] <- "cerro gordo"
+df_sales$County[71] <- "o'brien"
+df_sales$County[78] <- "pottawattamie"
+  #Remove inaccurate level names
+levels(df_sales$County)[levels(df_sales$County) == "buena vist"] <- "buena vista"
+levels(df_sales$County)[levels(df_sales$County) == "cerro gord"] <- "cerro gordo"
+levels(df_sales$County)[levels(df_sales$County) == "obrien"] <- "o'brien"
+levels(df_sales$County)[levels(df_sales$County) == "pottawatta"] <- "pottawattamie"
+
 
 # CLEANSE CENSUS DF
   #column not needed; delete
@@ -142,15 +157,4 @@ plot <- plot + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 ggsave(filename = "plot_dates.png", plot = plot, width = 24, height = 4, dpi = 600)
 
 # 
-
-
-
-
-
-
-
-
-
-
-
 
