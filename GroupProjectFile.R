@@ -142,3 +142,16 @@ test_merge <- merge(summ_County, county_pop, all.x = TRUE)
 test_merge$Vol_Per_Capita <- round(test_merge$Sum_Volume_Sold_Liters / test_merge$Sum_County_Pop, 1)
 
 test_merge <- arrange(test_merge, desc(Vol_Per_Capita))
+
+################
+# Volume Sold by Week
+################
+df_sales <- ungroup(df_sales)
+
+df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
+
+df_sales <- group_by(df_sales, date_binned)
+summ_Date <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
+summ_Date <- arrange(summ_Date, desc(Sum_Volume_Sold_Liters))
+
+df_sales <- ungroup(df_sales)
