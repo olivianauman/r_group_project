@@ -12,7 +12,8 @@ library(dplyr)
 library(ggplot2)
 library(reshape2)
 library(scales)
-
+suppressPackageStartupMessages(library(choroplethr))
+library(choroplethrMaps)
 
 ##############################################################################
 #                           DATA CLEANSING
@@ -43,8 +44,16 @@ rm(list=ls())
 # LOAD ALL DATA FRAMES
   #Liquor sales df
 df_sales <- read.csv("Iowa_Liquor_Sales_2017.csv", na.strings = c("NA", ""))
+
   #Census df
 df_census <- read.csv("County_Population_in_Iowa_by_Year.csv")
+
+# LOAD & CLEANSE COUNTY.REGIONS DF
+  # Load detailed county info
+data(county.regions)
+  # Subset to just Iowa
+county.regions <- subset(county.regions, state.abb == "IA")
+county.regions <- county.regions[, c("region", "county.name")]
 
 # CLEANSE LIQUOR SALES DF
 df_sales$County <- tolower(df_sales$County)
@@ -58,18 +67,27 @@ df_sales$Category <- factor(df_sales$Category)
 df_sales$Vendor.Number <- factor(df_sales$Vendor.Number)
   #Kept this...sometimes Item.Description is the same but Item.Number is different for two data points
 df_sales$Item.Number <- factor(df_sales$Item.Number)
-  #Add levels
+  #Clean up county spellings
+      #Add levels
 levels(df_sales$County) <- c(levels(df_sales$County), "buena vista", "cerro gordo", "o'brien", "pottawattamie")
-  #Overwrite levels with accurate names
+      #Overwrite levels with accurate names
 df_sales$County[11] <- "buena vista"
 df_sales$County[17] <- "cerro gordo"
 df_sales$County[71] <- "o'brien"
 df_sales$County[78] <- "pottawattamie"
-  #Remove inaccurate level names
+      #Remove inaccurate level names
 levels(df_sales$County)[levels(df_sales$County) == "buena vist"] <- "buena vista"
 levels(df_sales$County)[levels(df_sales$County) == "cerro gord"] <- "cerro gordo"
 levels(df_sales$County)[levels(df_sales$County) == "obrien"] <- "o'brien"
 levels(df_sales$County)[levels(df_sales$County) == "pottawatta"] <- "pottawattamie"
+  # Pull in FIPS code
+      # Rename county.regions df for merge-specific cleansing
+fips <- county.regions
+      # Rename column: county.name to County
+names(fips)[names(fips) == "county.name"] <- "County"
+names(fips)[names(fips) == "region"] <- "FIPS"
+      # Merge FIPS column into df_sales
+df_sales <- merge(df_sales, fips, all.x = TRUE)
 
 
 # CLEANSE CENSUS DF
@@ -126,15 +144,19 @@ descriptions <- analyze_by(df_sales, quo(Item.Description))
 cities <- analyze_by(df_sales, quo(City))
 
 # WHICH COUNTIES BUY THE MOST ALCOHOL (BY VOLUME LITERS/PER CAPITA)?
-df_census <- group_by(df_census, County)
-county_pop <- summarize(df_census, Sum_County_Pop = sum(Estimate))
-df_census <- ungroup(df_census)
-county_pop$County <- tolower(county_pop$County)
-summ_County$County <- tolower(summ_County$County)
-test_merge <- merge(summ_County, county_pop, all.x = TRUE)
-test_merge$Vol_Per_Capita <- round(test_merge$Sum_Volume_Sold_Liters / test_merge$Sum_County_Pop, 1)
-test_merge <- arrange(test_merge, desc(Vol_Per_Capita))
-df_sales <- ungroup(df_sales)
+  #Summarize volume by county
+county <- analyze_by(df_sales, quo(FIPS))
+  #Merge summary with census df
+county_pc <- merge(county, df_census, all.x = TRUE)
+  #Calculate per capita consumption
+county_pc$Vol_Per_Cap <- round(county_pc$VolSold / county_pc$Population, 1)
+  #Remove irrelevant columns
+county_pc$VolSold <- NULL
+county_pc$Year <- NULL
+county_pc$Population <- NULL
+county_pc$rural_or_urban <- NULL
+  #Order in descending order (highest to lowest consumption)
+county_pc <- arrange(county_pc, desc(Vol_Per_Cap))
 
 # VOLUME SOLD BY WEEK
 
@@ -154,5 +176,13 @@ plot <- plot + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 
 ggsave(filename = "plot_dates.png", plot = plot, width = 24, height = 4, dpi = 600)
 
-# 
+# CHOROPLETH OF VOLUME PER CAPITA
+plot_data <- county_pc
 
+names(plot_data)[names(plot_data) == "County"] <- "county.name"
+names(plot_data)[names(plot_data) == "FIPS"] <- "region"
+names(plot_data)[names(plot_data) == "Vol_Per_Cap"] <- "value"
+
+p <- county_choropleth(plot_data, state_zoom = "iowa")
+print(p)
+ggsave(filename = "volume_per_capita_map.png", plot = p, dpi = 600)
