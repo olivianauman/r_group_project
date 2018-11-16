@@ -79,12 +79,9 @@ df_census$FIPS <- factor(df_census$FIPS)
   #Note: left Date as a factor on purpose.
 
   #Examine Population Data for July 01, 2017 to ensure the 
-  # "July 01 2017" Census includes data for all counties.
+  # "July 01 2017" Census includes data for all 99 counties.
 pop_est_2017 <- subset(df_census, Year == "July 01 2017")
-pop_est_2017$FIPS <- NULL
-pop_est_2017$Year <- NULL
-pop_est_2017$Estimate <- NULL
-pop_est_2017 <- pop_est_2017[order(pop_est_2017$County), ]
+print(nrow(pop_est_2017))
 
   #Subset to just 2017
 df_census <- subset(df_census, Year == "July 01 2017")
