@@ -34,7 +34,7 @@ df_test <- subset(df, Date >= "2017-01-01" & Date < "2018-01-01")
   #Make this a new csv file to use in next step
 write.csv(df_test, "Iowa_Liquor_Sales_2017.csv", row.names = FALSE)
 
-  #???
+  #Examine count of NAs
 NA_count_2017 <- sum(is.na(df_test))
 
   #Clear the environment and continue
