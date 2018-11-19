@@ -161,10 +161,7 @@ county_pc <- arrange(county_pc, desc(Vol_Per_Cap))
 # VOLUME SOLD BY WEEK
 
 df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
-df_sales <- group_by(df_sales, date_binned)
-summ_Date <- summarize(df_sales, Sum_Volume_Sold_Liters = sum(Volume.Sold..Liters.))       
-summ_Date <- arrange(summ_Date, desc(Sum_Volume_Sold_Liters))
-df_sales <- ungroup(df_sales)
+Date <- analyze_by(df_sales, quo(date_binned))
 
 ##############################################################################
 #                           VISUALIZATIONS
