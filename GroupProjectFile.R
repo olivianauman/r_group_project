@@ -154,6 +154,17 @@ colnames(vendor_by_county)[colnames(vendor_by_county)=="Vendor.Name"] <- "Vendor
 
 vendor_by_county <- sqldf("select County, VendorName, max(VolSold) from vendor_by_county where County != '' group by County") # Find the biggest supplier for each county
 
+# TOP LIQUOR FOR EACH COUNTY
+liquor_by_county <- df_sales %>% # select the columns we want
+  select(County, Item.Description, Volume.Sold..Liters.)
+liquor_by_county$County <- tolower(liquor_by_county$County) # make case-insensitive
+liquor_by_county <- liquor_by_county %>%
+  group_by(County, Item.Description) %>% # group by county and vendor name
+  summarize(VolSold = sum(Volume.Sold..Liters.)) # sum based on county & vendor name combo
+
+colnames(liquor_by_county)[colnames(liquor_by_county)=="Item.Description"] <- "Liquor" #Rename column to work in SQL command
+
+liquor_by_county <- sqldf("select County, Liquor, max(VolSold) from liquor_by_county where County != '' group by County") # Find the biggest supplier for each county
 
 ##############################################################################
 #                           VISUALIZATIONS
@@ -175,6 +186,17 @@ names(plot_data)[names(plot_data) == "Vol_Per_Cap"] <- "value"
 p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Volume Per Capita", legend = "Liters Per Person")
 print(p)
 ggsave(filename = "volume_per_capita_map.png", plot = p, dpi = 600)
+
+# CHOROPLETH OF TOP LIQUOR BY COUNTY #####NEEDS WORK#########
+plot_data <- merge(liquor_by_county, fips, all.x = TRUE)
+
+names(plot_data)[names(plot_data) == "County"] <- "county.name"
+names(plot_data)[names(plot_data) == "FIPS"] <- "region"
+names(plot_data)[names(plot_data) == "Liquor"] <- "value"
+
+p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Top Liquor by County", legend = "Brand", num_colors = 6)
+print(p)
+ggsave(filename = "top_brand_by_county_map.png", plot = p, dpi = 600)
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
