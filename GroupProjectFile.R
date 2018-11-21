@@ -172,7 +172,7 @@ names(plot_data)[names(plot_data) == "County"] <- "county.name"
 names(plot_data)[names(plot_data) == "FIPS"] <- "region"
 names(plot_data)[names(plot_data) == "Vol_Per_Cap"] <- "value"
 
-p <- county_choropleth(plot_data, state_zoom = "iowa")
+p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Volume Per Capita", legend = "Liters Per Person")
 print(p)
 ggsave(filename = "volume_per_capita_map.png", plot = p, dpi = 600)
 
