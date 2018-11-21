@@ -178,7 +178,7 @@ ggsave(filename = "volume_per_capita_map.png", plot = p, dpi = 600)
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
-df_hv <- subset(df_sales, Item.Number == "36308" | Item.Number == "36307" | 
+df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
                   Item.Number == "36306" | Item.Number == "36305" | 
                   Item.Number == "36301") 
 
