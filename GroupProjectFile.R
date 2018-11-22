@@ -8,13 +8,13 @@
 rm(list=ls())
 
 # LOAD NECESSARY LIBRARIES
-library(dplyr)
-library(ggplot2)
-library(reshape2)
-library(scales)
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(reshape2))
+suppressPackageStartupMessages(library(scales))
 suppressPackageStartupMessages(library(choroplethr))
-library(choroplethrMaps)
-library(sqldf)
+suppressPackageStartupMessages(library(choroplethrMaps))
+suppressPackageStartupMessages(library(sqldf))
 
 ##############################################################################
 #                           DATA CLEANSING
@@ -26,6 +26,10 @@ df_sales <- read.csv("Iowa_Liquor_Sales_2017.csv", na.strings = c("NA", ""))
 
 #Census df
 df_census <- read.csv("County_Population_in_Iowa_by_Year.csv")
+
+#Holidays df
+df_holidays <- read.csv("holidays.csv")
+df_holidays$Date <- as.Date(df_holidays$Date, "%m/%d/%Y")
 
 # LOAD & CLEANSE COUNTY.REGIONS DF
 # Load detailed county info
@@ -139,8 +143,8 @@ county_pc <- arrange(county_pc, desc(Vol_Per_Cap))
 
 # VOLUME SOLD BY WEEK
 
-df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
-Date <- analyze_by(df_sales, quo(date_binned))
+#df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
+#Date <- analyze_by(df_sales, quo(date_binned))
 
 # TOP VENDOR FOR EACH COUNTY
 vendor_by_county <- df_sales %>% # select the columns we want
@@ -165,6 +169,31 @@ liquor_by_county <- liquor_by_county %>%
 colnames(liquor_by_county)[colnames(liquor_by_county)=="Item.Description"] <- "Liquor" #Rename column to work in SQL command
 
 liquor_by_county <- sqldf("select County, Liquor, max(VolSold) from liquor_by_county where County != '' group by County") # Find the biggest supplier for each county
+
+# HYVEE ONLY
+df_hyvee <- df_sales[grep("Hy-Vee", df_sales$Store.Name), ]
+
+  #volume of hyvee compared to whole state
+total_hyvee_volume_sold <- sum(df_hyvee$Volume.Sold..Liters.)
+total_volume_sold <- sum(df_sales$Volume.Sold..Liters.)
+percent_hyvee_volume <- (total_hyvee_volume_sold/total_volume_sold) * 100
+
+# LIQUOR TYPE ANALYSIS #####I think there is a cleaner way to do this but idk what it would be
+df_whisky <- df_sales[grep(tolower("whisk"), tolower(df_sales$Category.Name)), ]
+df_vodka <- df_sales[grep(tolower("vodka"), tolower(df_sales$Category.Name)), ]
+df_tequila <- df_sales[grep(tolower("tequila"), tolower(df_sales$Category.Name)), ]
+df_rum <- df_sales[grep(tolower("rum"), tolower(df_sales$Category.Name)), ]
+df_gin <- df_sales[grep(tolower("gin"), tolower(df_sales$Category.Name)), ]
+df_bourbon <- df_sales[grep(tolower("bourbon"), tolower(df_sales$Category.Name)), ]
+df_scotch <- df_sales[grep(tolower("scotch"), tolower(df_sales$Category.Name)), ]
+percent_whisky <- sum(df_whisky$Volume.Sold..Liters.)/ total_volume_sold * 100
+percent_vodka <- sum(df_vodka$Volume.Sold..Liters.)/ total_volume_sold * 100
+percent_tequila <- sum(df_tequila$Volume.Sold..Liters.)/ total_volume_sold * 100
+percent_rum <- sum(df_rum$Volume.Sold..Liters.)/ total_volume_sold * 100
+percent_gin <- sum(df_gin$Volume.Sold..Liters.)/ total_volume_sold * 100
+percent_bourbon <- sum(df_bourbon$Volume.Sold..Liters.)/ total_volume_sold * 100
+percent_scotch <- sum(df_scotch$Volume.Sold..Liters.)/ total_volume_sold * 100
+
 
 ##############################################################################
 #                           VISUALIZATIONS
@@ -199,12 +228,15 @@ print(p)
 ggsave(filename = "top_brand_by_county_map.png", plot = p, dpi = 600)
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
-df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
-df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
-                  Item.Number == "36306" | Item.Number == "36305" | 
-                  Item.Number == "36301") 
+#df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
+#df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
+ #                 Item.Number == "36306" | Item.Number == "36305" | 
+  #                Item.Number == "36301") 
 
 # LINE GRAPH OF SALES OF VODKA AROUND HAWKEYE FOOTBALL GAMES
-plot2 <- qplot(Date, Volume.Sold..Liters., data = df_hv, geom = "line")
-plot2 <- plot2 + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
-ggsave(filename = "hv_dates.png", plot = plot2, width = 11, height = 5, dpi = 600)
+#plot2 <- qplot(Date, Volume.Sold..Liters., data = df_hv, geom = "line")
+#plot2 <- plot2 + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
+#ggsave(filename = "hv_dates.png", plot = plot2, width = 11, height = 5, dpi = 600)
+
+
+
