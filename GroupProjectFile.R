@@ -17,7 +17,7 @@ suppressPackageStartupMessages(library(choroplethrMaps))
 suppressPackageStartupMessages(library(sqldf))
 
 ##############################################################################
-#                           DATA CLEANSING
+#                          1. DATA CLEANSING
 ##############################################################################
 
 # LOAD ALL DATA FRAMES
@@ -96,10 +96,10 @@ df_census$rural_or_urban[option_rural] <- "Rural"
 
 
 ##############################################################################
-#                           ANALYSIS
+#                         2.  ANALYSIS
 ##############################################################################
 
-
+#(2a)
 # THE analyze_by FUNCTION ACCEPTS A DATAFRAME FOR THE FIRST ARG, df
 # THE analyze_by FUNCTION ACCEPTS A QUOTED COLUMN NAME FOR THE SECOND ARG, col_name
 # THE analyze_by FUNCTION RETURNS A DATAFRAME THAT GROUPS BY col_name AND SUMS THE VOLUME OF LIQUOR SOLD
@@ -114,18 +114,23 @@ analyze_by <- function(df, col_name) {
   summ
 }
 
+#(2b)
 # WHAT CATEGORIES OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
 categories <- analyze_by(df_sales, quo(Category.Name))
 
-# WHAT BRANDS (VENDOR) OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
-vendors <- analyze_by(df_sales, quo(Vendor.Name))
-
+#(2c)
 # WHAT DESCRIPTIONS OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
 descriptions <- analyze_by(df_sales, quo(Item.Description))
 
+#(2d)
+# WHAT VENDOR OF ALCOHOL ARE PURCHASED IN THE HIGHEST QUANTITY (BY VOLUME IN LITERS)?
+vendors <- analyze_by(df_sales, quo(Vendor.Name))
+
+#(2e)
 # WHICH CITIES BUY THE MOST ALCOHOL (BY VOLUME IN LITERS)?
 cities <- analyze_by(df_sales, quo(City))
 
+#(2f)
 # WHICH COUNTIES BUY THE MOST ALCOHOL (BY VOLUME LITERS/PER CAPITA)?
 #Summarize volume by county
 county <- analyze_by(df_sales, quo(FIPS))
@@ -141,7 +146,7 @@ county_pc$rural_or_urban <- NULL
 #Order in descending order (highest to lowest consumption)
 county_pc <- arrange(county_pc, desc(Vol_Per_Cap))
 
-
+#(2g)
 # TOP VENDOR FOR EACH COUNTY
 vendor_by_county <- df_sales %>% # select the columns we want
   select(County, Vendor.Name, Volume.Sold..Liters.)
@@ -154,6 +159,7 @@ colnames(vendor_by_county)[colnames(vendor_by_county)=="Vendor.Name"] <- "Vendor
 
 vendor_by_county <- sqldf("select County, VendorName, max(VolSold) from vendor_by_county where County != '' group by County") # Find the biggest supplier for each county
 
+#(2h)
 # TOP LIQUOR FOR EACH COUNTY
 liquor_by_county <- df_sales %>% # select the columns we want
   select(County, Item.Description, Volume.Sold..Liters.)
@@ -166,6 +172,7 @@ colnames(liquor_by_county)[colnames(liquor_by_county)=="Item.Description"] <- "L
 
 liquor_by_county <- sqldf("select County, Liquor, max(VolSold) from liquor_by_county where County != '' group by County") # Find the biggest supplier for each county
 
+#(2i)
 # TOP STORES IN IOWA
 stores <- analyze_by(df_sales, quo(Store.Name))
 
@@ -177,14 +184,17 @@ total_hyvee_volume_sold <- sum(df_hyvee$Volume.Sold..Liters.)
 total_volume_sold <- sum(df_sales$Volume.Sold..Liters.)
 percent_hyvee_volume <- (total_hyvee_volume_sold/total_volume_sold) * 100
 
+#(2j)
 # VOLUME SOLD BY WEEK
 df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
 dates <- analyze_by(df_sales, quo(date_binned))
 
 
 ##############################################################################
-#                           VISUALIZATIONS
+#                         3.  VISUALIZATIONS
 ##############################################################################
+
+#(3a)
 # BAR CHART FOR TOP 5 CATEGORIES BY VOLUME
 pCat <- qplot(x = reorder(Category.Name, VolSold), y = VolSold, data = head(categories, 5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -198,7 +208,7 @@ pCat
 ggsave(filename = "Top5CatBarChart.png", plot = pCat, width = 8, height = 4,
        dpi = 600)
 
-
+#(3b)
 # BAR CHART FOR TOP 5 VENDORS BY VOLUME
 pVen <- qplot(x = reorder(Vendor.Name, VolSold), y = VolSold, data = head(vendors, 5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -212,6 +222,7 @@ pVen
 ggsave(filename = "Top5VenBarChart.png", plot = pVen, width = 8, height = 4,
        dpi = 600)
 
+#(3c)
 # BAR CHART FOR TOP 5 DESCRIPTIONS BY VOLUME
 pDes <- qplot(x = reorder(Item.Description, VolSold), y = VolSold, data = head(descriptions, 5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -225,6 +236,7 @@ pDes
 ggsave(filename = "Top5DesBarChart.png", plot = pDes, width = 8, height = 4,
        dpi = 600)
 
+#(3d)
 # BAR CHART FOR TOP 5 CITIES BY VOLUME
 pCit <- qplot(x = reorder(City, VolSold), y = VolSold, data = head(cities, 5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -238,16 +250,14 @@ pCit
 ggsave(filename = "Top5CitBarChart.png", plot = pCit, width = 8, height = 4,
        dpi = 600)
 
-
-
-
-
+#(3e)
 # LINE GRAPH OF SALES BY HIGHEST VOLUME (LITERS)
 plot <- qplot(Date, Volume.Sold..Liters., data = df_sales, geom = "line")
 plot <- plot + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 
 ggsave(filename = "plot_dates.png", plot = plot, width = 24, height = 4, dpi = 600)
 
+#(3f)
 # CHOROPLETH OF VOLUME PER CAPITA
 plot_data <- county_pc
 
@@ -259,6 +269,7 @@ p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Volume Per Capit
 print(p)
 ggsave(filename = "volume_per_capita_map.png", plot = p, height = 4, dpi = 600)
 
+#(3g)
 # BAR CHART OF VOLUME PER CAPITA
 Above7 <- subset(plot_data, value >= 7)
 
@@ -274,6 +285,7 @@ pPlo
 ggsave(filename = "CountiesAbove7.png", plot = pPlo, width = 8, height = 4,
        dpi = 600)
 
+#(3h)
 # BAR CHART OF VOLUME BY STORE
 pSto <- qplot(x = reorder(Store.Name, VolSold), y = VolSold, data = head(stores,5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -287,7 +299,7 @@ pSto
 ggsave(filename = "Top5StoreBarChart.png", plot = pSto, width = 8, height = 4,
        dpi = 600)
 
-
+#(3i)
 # BAR CHART OF VOLUME BY WEEK
 pDat <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -301,7 +313,7 @@ pDat
 ggsave(filename = "Top5WeeksBarChart.png", plot = pDat, width = 8, height = 4,
        dpi = 600)
 
-
+#(3j)
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
 df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
