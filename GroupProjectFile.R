@@ -170,6 +170,9 @@ colnames(liquor_by_county)[colnames(liquor_by_county)=="Item.Description"] <- "L
 
 liquor_by_county <- sqldf("select County, Liquor, max(VolSold) from liquor_by_county where County != '' group by County") # Find the biggest supplier for each county
 
+# TOP STORES IN IOWA
+stores <- analyze_by(df_sales, quo(Store.Name))
+
 # HYVEE ONLY
 df_hyvee <- df_sales[grep("Hy-Vee", df_sales$Store.Name), ]
 
@@ -285,6 +288,19 @@ pPlo <- qplot(x = reorder(county.name, value), y = value, data = Above7) +
   scale_y_continuous(labels = comma)
 pPlo
 ggsave(filename = "CountiesAbove7.png", plot = pPlo, width = 8, height = 4,
+       dpi = 600)
+
+# BAR CHART OF VOLUME BY STORE
+pSto <- qplot(x = reorder(Store.Name, VolSold), y = VolSold, data = head(stores,5)) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("Top 5 Stores by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("Store Name")+
+  scale_y_continuous(labels = comma)
+pSto
+ggsave(filename = "Top5StoreBarChart.png", plot = pSto, width = 8, height = 4,
        dpi = 600)
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
