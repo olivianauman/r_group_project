@@ -214,7 +214,7 @@ names(plot_data)[names(plot_data) == "Vol_Per_Cap"] <- "value"
 
 p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Volume Per Capita", legend = "Liters Per Person")
 print(p)
-ggsave(filename = "volume_per_capita_map.png", plot = p, dpi = 600)
+ggsave(filename = "volume_per_capita_map.png", plot = p, height = 4, dpi = 600)
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
