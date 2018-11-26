@@ -280,7 +280,7 @@ pPlo <- qplot(x = reorder(county.name, value), y = value, data = Above7) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   coord_flip() +
   ggtitle("All Counties with value > 7")+
-  ylab("Value")+
+  ylab("Liters per Person")+
   xlab("County")+
   scale_y_continuous(labels = comma)
 pPlo
@@ -297,4 +297,3 @@ df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" |
 plot2 <- qplot(Date, Volume.Sold..Liters., data = df_hv, geom = "line")
 plot2 <- plot2 + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 ggsave(filename = "hv_dates.png", plot = plot2, width = 11, height = 5, dpi = 600)
-
