@@ -187,8 +187,10 @@ percent_hyvee_volume <- (total_hyvee_volume_sold/total_volume_sold) * 100
 #(2j)
 # VOLUME SOLD BY WEEK
 df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
-dates <- analyze_by(df_sales, quo(date_binned))
-
+dates <- df_sales %>%
+    select(date_binned, Volume.Sold..Liters.) %>%
+    group_by(date_binned) %>%
+    summarize(VolSold = sum(Volume.Sold..Liters.))
 
 ##############################################################################
 #                         3.  VISUALIZATIONS
@@ -323,3 +325,17 @@ df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" |
 plot2 <- qplot(Date, Volume.Sold..Liters., data = df_hv, geom = "line")
 plot2 <- plot2 + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 ggsave(filename = "hv_dates.png", plot = plot2, width = 11, height = 5, dpi = 600)
+
+
+
+#(3j)
+pDat <- qplot(x = date_binned, y = VolSold, data = dates) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  ggtitle("All Weeks During 2017 by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("Week of")+
+  scale_y_continuous(labels = comma)
+pDat
+ggsave(filename = "AllWeeksBarChart.png", plot = pDat, width = 8, height = 4,
+       dpi = 600)
