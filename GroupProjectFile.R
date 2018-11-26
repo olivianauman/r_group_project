@@ -141,10 +141,6 @@ county_pc$rural_or_urban <- NULL
 #Order in descending order (highest to lowest consumption)
 county_pc <- arrange(county_pc, desc(Vol_Per_Cap))
 
-# VOLUME SOLD BY WEEK
-
-#df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
-#Date <- analyze_by(df_sales, quo(date_binned))
 
 # TOP VENDOR FOR EACH COUNTY
 vendor_by_county <- df_sales %>% # select the columns we want
@@ -181,21 +177,9 @@ total_hyvee_volume_sold <- sum(df_hyvee$Volume.Sold..Liters.)
 total_volume_sold <- sum(df_sales$Volume.Sold..Liters.)
 percent_hyvee_volume <- (total_hyvee_volume_sold/total_volume_sold) * 100
 
-# LIQUOR TYPE ANALYSIS #####I think there is a cleaner way to do this but idk what it would be
-df_whisky <- df_sales[grep(tolower("whisk"), tolower(df_sales$Category.Name)), ]
-df_vodka <- df_sales[grep(tolower("vodka"), tolower(df_sales$Category.Name)), ]
-df_tequila <- df_sales[grep(tolower("tequila"), tolower(df_sales$Category.Name)), ]
-df_rum <- df_sales[grep(tolower("rum"), tolower(df_sales$Category.Name)), ]
-df_gin <- df_sales[grep(tolower("gin"), tolower(df_sales$Category.Name)), ]
-df_bourbon <- df_sales[grep(tolower("bourbon"), tolower(df_sales$Category.Name)), ]
-df_scotch <- df_sales[grep(tolower("scotch"), tolower(df_sales$Category.Name)), ]
-percent_whisky <- sum(df_whisky$Volume.Sold..Liters.)/ total_volume_sold * 100
-percent_vodka <- sum(df_vodka$Volume.Sold..Liters.)/ total_volume_sold * 100
-percent_tequila <- sum(df_tequila$Volume.Sold..Liters.)/ total_volume_sold * 100
-percent_rum <- sum(df_rum$Volume.Sold..Liters.)/ total_volume_sold * 100
-percent_gin <- sum(df_gin$Volume.Sold..Liters.)/ total_volume_sold * 100
-percent_bourbon <- sum(df_bourbon$Volume.Sold..Liters.)/ total_volume_sold * 100
-percent_scotch <- sum(df_scotch$Volume.Sold..Liters.)/ total_volume_sold * 100
+# VOLUME SOLD BY WEEK
+df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
+dates <- analyze_by(df_sales, quo(date_binned))
 
 
 ##############################################################################
@@ -302,6 +286,21 @@ pSto <- qplot(x = reorder(Store.Name, VolSold), y = VolSold, data = head(stores,
 pSto
 ggsave(filename = "Top5StoreBarChart.png", plot = pSto, width = 8, height = 4,
        dpi = 600)
+
+
+# BAR CHART OF VOLUME BY WEEK
+pDat <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,5)) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("Top 5 Weeks During 2017 by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("Week of")+
+  scale_y_continuous(labels = comma)
+pDat
+ggsave(filename = "Top5WeeksBarChart.png", plot = pDat, width = 8, height = 4,
+       dpi = 600)
+
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
