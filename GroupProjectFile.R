@@ -269,7 +269,6 @@ p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Volume Per Capit
 print(p)
 ggsave(filename = "volume_per_capita_map.png", plot = p, height = 4, dpi = 600)
 
-#(3g)
 # BAR CHART OF VOLUME PER CAPITA
 Above7 <- subset(plot_data, value >= 7)
 
@@ -285,7 +284,7 @@ pPlo
 ggsave(filename = "CountiesAbove7.png", plot = pPlo, width = 8, height = 4,
        dpi = 600)
 
-#(3h)
+#(3g)
 # BAR CHART OF VOLUME BY STORE
 pSto <- qplot(x = reorder(Store.Name, VolSold), y = VolSold, data = head(stores,5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -299,7 +298,7 @@ pSto
 ggsave(filename = "Top5StoreBarChart.png", plot = pSto, width = 8, height = 4,
        dpi = 600)
 
-#(3i)
+#(3h)
 # BAR CHART OF VOLUME BY WEEK
 pDat <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
@@ -313,7 +312,7 @@ pDat
 ggsave(filename = "Top5WeeksBarChart.png", plot = pDat, width = 8, height = 4,
        dpi = 600)
 
-#(3j)
+#(3i)
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
 df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
