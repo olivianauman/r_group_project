@@ -173,7 +173,7 @@ liquor_by_county <- sqldf("select County, Liquor, max(VolSold) from liquor_by_co
 # HYVEE ONLY
 df_hyvee <- df_sales[grep("Hy-Vee", df_sales$Store.Name), ]
 
-  #volume of hyvee compared to whole state
+#volume of hyvee compared to whole state
 total_hyvee_volume_sold <- sum(df_hyvee$Volume.Sold..Liters.)
 total_volume_sold <- sum(df_sales$Volume.Sold..Liters.)
 percent_hyvee_volume <- (total_hyvee_volume_sold/total_volume_sold) * 100
@@ -198,6 +198,62 @@ percent_scotch <- sum(df_scotch$Volume.Sold..Liters.)/ total_volume_sold * 100
 ##############################################################################
 #                           VISUALIZATIONS
 ##############################################################################
+# BAR CHART FOR TOP 5 CATEGORIES BY VOLUME
+pCat <- qplot(x = reorder(Category.Name, VolSold), y = VolSold, data = head(categories, 5)) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("Top 5 Categories by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("Category")+
+  scale_y_continuous(labels = comma)
+pCat
+ggsave(filename = "Top5CatBarChart.png", plot = pCat, width = 8, height = 4,
+       dpi = 600)
+
+
+# BAR CHART FOR TOP 5 VENDORS BY VOLUME
+pVen <- qplot(x = reorder(Vendor.Name, VolSold), y = VolSold, data = head(vendors, 5)) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("Top 5 Vendors by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("Vendor")+
+  scale_y_continuous(labels = comma)
+pVen
+ggsave(filename = "Top5VenBarChart.png", plot = pVen, width = 8, height = 4,
+       dpi = 600)
+
+# BAR CHART FOR TOP 5 DESCRIPTIONS BY VOLUME
+pDes <- qplot(x = reorder(Item.Description, VolSold), y = VolSold, data = head(descriptions, 5)) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("Top 5 Descriptions by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("Description")+
+  scale_y_continuous(labels = comma)
+pDes
+ggsave(filename = "Top5DesBarChart.png", plot = pDes, width = 8, height = 4,
+       dpi = 600)
+
+# BAR CHART FOR TOP 5 CITIES BY VOLUME
+pCit <- qplot(x = reorder(City, VolSold), y = VolSold, data = head(cities, 5)) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("Top 5 Cities by Volume of Liquor Sold")+
+  ylab("Volume Sold (Liters)")+
+  xlab("City")+
+  scale_y_continuous(labels = comma)
+pCit
+ggsave(filename = "Top5CitBarChart.png", plot = pCit, width = 8, height = 4,
+       dpi = 600)
+
+
+
+
 
 # LINE GRAPH OF SALES BY HIGHEST VOLUME (LITERS)
 plot <- qplot(Date, Volume.Sold..Liters., data = df_sales, geom = "line")
@@ -219,13 +275,11 @@ ggsave(filename = "volume_per_capita_map.png", plot = p, height = 4, dpi = 600)
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
 df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
-                 Item.Number == "36306" | Item.Number == "36305" | 
-                 Item.Number == "36301") 
+                  Item.Number == "36306" | Item.Number == "36305" | 
+                  Item.Number == "36301") 
 
 # LINE GRAPH OF SALES OF VODKA AROUND HAWKEYE FOOTBALL GAMES
 plot2 <- qplot(Date, Volume.Sold..Liters., data = df_hv, geom = "line")
 plot2 <- plot2 + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
 ggsave(filename = "hv_dates.png", plot = plot2, width = 11, height = 5, dpi = 600)
-
-
 
