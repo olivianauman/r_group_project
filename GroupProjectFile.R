@@ -284,7 +284,7 @@ pPlo <- qplot(x = reorder(county.name, value), y = value, data = Above7) +
   xlab("County")+
   scale_y_continuous(labels = comma)
 pPlo
-ggsave(filename = "CountiesAbove7.png", plot = pCit, width = 8, height = 4,
+ggsave(filename = "CountiesAbove7.png", plot = pPlo, width = 8, height = 4,
        dpi = 600)
 
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
