@@ -272,6 +272,21 @@ p <- county_choropleth(plot_data, state_zoom = "iowa", title = "Volume Per Capit
 print(p)
 ggsave(filename = "volume_per_capita_map.png", plot = p, height = 4, dpi = 600)
 
+# BAR CHART OF VOLUME PER CAPITA
+Above7 <- subset(plot_data, value >= 7)
+
+pPlo <- qplot(x = reorder(county.name, value), y = value, data = Above7) + 
+  geom_bar(stat = "identity", fill = "steelblue") + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  coord_flip() +
+  ggtitle("All Counties with value > 7")+
+  ylab("Value")+
+  xlab("County")+
+  scale_y_continuous(labels = comma)
+pPlo
+ggsave(filename = "CountiesAbove7.png", plot = pCit, width = 8, height = 4,
+       dpi = 600)
+
 # SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
 df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
 df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
