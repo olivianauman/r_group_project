@@ -184,9 +184,9 @@ percent_hyvee_volume <- (total_hyvee_volume_sold/total_volume_sold) * 100
 # VOLUME SOLD BY WEEK
 df_sales$date_binned <- cut(df_sales$Date, breaks = "weeks")
 dates <- df_sales %>%
-    select(date_binned, Volume.Sold..Liters.) %>%
-    group_by(date_binned) %>%
-    summarize(VolSold = sum(Volume.Sold..Liters.))
+  select(date_binned, Volume.Sold..Liters.) %>%
+  group_by(date_binned) %>%
+  summarize(VolSold = sum(Volume.Sold..Liters.))
 
 ##############################################################################
 #                         3.  VISUALIZATIONS
@@ -298,7 +298,7 @@ ggsave(filename = "Top5StoreBarChart.png", plot = pSto, width = 8, height = 4,
 
 #(3h)
 # BAR CHART OF VOLUME BY WEEK
-pDat <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,5)) + 
+pDatTop5 <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,5)) + 
   geom_bar(stat = "identity", fill = "steelblue") + 
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
   coord_flip() +
@@ -306,8 +306,8 @@ pDat <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,
   ylab("Volume Sold (Liters)")+
   xlab("Week of")+
   scale_y_continuous(labels = comma)
-pDat
-ggsave(filename = "Top5WeeksBarChart.png", plot = pDat, width = 8, height = 4,
+pDatTop5
+ggsave(filename = "Top5WeeksBarChart.png", plot = pDatTop5, width = 8, height = 4,
        dpi = 600)
 
 #(3j)
