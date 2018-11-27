@@ -27,10 +27,6 @@ df_sales <- read.csv("Iowa_Liquor_Sales_2017.csv", na.strings = c("NA", ""))
 #Census df
 df_census <- read.csv("County_Population_in_Iowa_by_Year.csv")
 
-#Holidays df
-df_holidays <- read.csv("holidays.csv")
-df_holidays$Date <- as.Date(df_holidays$Date, "%m/%d/%Y")
-
 # LOAD & CLEANSE COUNTY.REGIONS DF
 # Load detailed county info
 data(county.regions)
@@ -313,20 +309,6 @@ pDat <- qplot(x = reorder(date_binned, VolSold), y = VolSold, data = head(dates,
 pDat
 ggsave(filename = "Top5WeeksBarChart.png", plot = pDat, width = 8, height = 4,
        dpi = 600)
-
-#(3i)
-# SUBSET TO WEEKS AROUND HAWKEYE FOOTBALL GAMES AND ONLY HAWKEYE VODKA SALES
-df_hv <- subset(df_sales, Date >= "2017-08-15" & Date < "2018-01-01")
-df_hv <- subset(df_hv, Item.Number == "36308" | Item.Number == "36307" | 
-                  Item.Number == "36306" | Item.Number == "36305" | 
-                  Item.Number == "36301") 
-
-# LINE GRAPH OF SALES OF VODKA AROUND HAWKEYE FOOTBALL GAMES
-plot2 <- qplot(Date, Volume.Sold..Liters., data = df_hv, geom = "line")
-plot2 <- plot2 + scale_x_date(date_breaks = "1 week", date_labels = "%m/%d")
-ggsave(filename = "hv_dates.png", plot = plot2, width = 11, height = 5, dpi = 600)
-
-
 
 #(3j)
 pDat <- qplot(x = date_binned, y = VolSold, data = dates) + 
